@@ -1,4 +1,5 @@
 require('dotenv').config();
+const { createServer } = require('http');
 const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
@@ -174,4 +175,4 @@ app.post('/api/candidates', async (req, res) => {
 });
 
 
-app.listen(5001, () => console.log('Server running on port 5001'));
+module.exports = app;
