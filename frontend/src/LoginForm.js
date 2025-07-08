@@ -12,14 +12,21 @@ function LoginForm({ onLogin }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    
     try {
-      const res = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/login`, form);
+      console.log('Attempting login with:', form);
+      const res = await axios.post('/api/login', form);
+      console.log('Login successful:', res.data);
+      
       localStorage.setItem('token', res.data.token);
       onLogin(); // Navigate to list page
     } catch (error) {
-      alert('Login failed! Please check your credentials.');
+      console.error('Login error:', error);
+      const errorMessage = error.response?.data?.message || 'Login failed! Please check your credentials.';
+      alert(errorMessage);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
