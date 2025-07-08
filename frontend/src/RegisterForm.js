@@ -20,7 +20,7 @@ function RegisterForm({ onRegister }) {
 
     setLoading(true);
     try {
-      await axios.post('http://localhost:5001/register', {
+      await axios.post(`${process.env.REACT_APP_API_BASE_URL || "/api"}/register`, {
         username: form.username,
         password: form.password,
         email: form.email
