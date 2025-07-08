@@ -13,7 +13,7 @@ function LoginForm({ onLogin }) {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await axios.post('http://localhost:5001/login', form);
+      const res = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/login`, form);
       localStorage.setItem('token', res.data.token);
       onLogin(); // Navigate to list page
     } catch (error) {
