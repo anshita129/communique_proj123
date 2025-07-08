@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import './CandidateList.css'; // Ensure your CSS includes .back-btn styling
+import './CandidateList.css';
 
 function CandidateList({ onBack, onLogout }) {
   const [candidates, setCandidates] = useState([]);
@@ -10,17 +10,46 @@ function CandidateList({ onBack, onLogout }) {
     const fetchCandidates = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL || "/api"}/candidates`, {
+        if (!token) {
+          alert('No token found. Please login again.');
+          onLogout();
+          return;
+        }
+
+        console.log('Fetching candidates with token:', token);
+        const res = await axios.get('/api/candidates', {
           headers: { Authorization: `Bearer ${token}` }
         });
+        
+        console.log('Candidates fetched successfully:', res.data);
         setCandidates(res.data);
       } catch (error) {
-        alert('Failed to fetch candidates. Are you logged in?');
+        console.error('Failed to fetch candidates:', error);
+        const errorMessage = error.response?.data?.message || 'Failed to fetch candidates. Are you logged in?';
+        alert(errorMessage);
+        
+        if (error.response?.status === 401) {
+          localStorage.removeItem('token');
+          onLogout();
+        }
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
+    
     fetchCandidates();
-  }, []);
+  }, [onLogout]);
+
+  const handleExport = (format) => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert('Please login to export data.');
+      return;
+    }
+    
+    // Note: You'll need to create export endpoints in your API
+    window.open(`/api/candidates/export/${format}`, '_blank');
+  };
 
   return (
     <div className="candidate-list-container">
@@ -29,13 +58,13 @@ function CandidateList({ onBack, onLogout }) {
         <div>
           <button
             className="export-btn"
-            onClick={() => window.open('http://localhost:5001/api/candidates/export/csv', '_blank')}
+            onClick={() => handleExport('csv')}
           >
             Export as CSV
           </button>
           <button
             className="export-btn"
-            onClick={() => window.open('http://localhost:5001/api/candidates/export/pdf', '_blank')}
+            onClick={() => handleExport('pdf')}
           >
             Export as PDF
           </button>
@@ -68,6 +97,7 @@ function CandidateList({ onBack, onLogout }) {
                 <th>Name</th>
                 <th>Roll Number</th>
                 <th>Google Drive Link</th>
+                <th>Created At</th>
               </tr>
             </thead>
             <tbody>
@@ -85,6 +115,7 @@ function CandidateList({ onBack, onLogout }) {
                       View Document
                     </a>
                   </td>
+                  <td>{new Date(c.created_at).toLocaleDateString()}</td>
                 </tr>
               ))}
             </tbody>
