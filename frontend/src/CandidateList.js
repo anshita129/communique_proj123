@@ -10,7 +10,7 @@ function CandidateList({ onBack, onLogout }) {
     const fetchCandidates = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await axios.get('http://localhost:5001/api/candidates', {
+        const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL || "/api"}/candidates`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setCandidates(res.data);
