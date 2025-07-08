@@ -20,14 +20,23 @@ function RegisterForm({ onRegister }) {
 
     setLoading(true);
     try {
-      await axios.post(`${process.env.REACT_APP_API_BASE_URL || "/api"}/register`, {
+      console.log('Attempting registration with:', {
+        username: form.username,
+        email: form.email
+      });
+      
+      const response = await axios.post('/api/register', {
         username: form.username,
         password: form.password,
         email: form.email
       });
+      
+      console.log('Registration successful:', response.data);
       onRegister(); // Show success message or proceed
     } catch (error) {
-      alert('Registration failed!');
+      console.error('Registration error:', error);
+      const errorMessage = error.response?.data?.message || 'Registration failed!';
+      alert(errorMessage);
     } finally {
       setLoading(false);
     }
