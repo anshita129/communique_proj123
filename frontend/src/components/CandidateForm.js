@@ -47,7 +47,7 @@ function CandidateForm() {
         roll_number: form.rollNumber,
         google_drive_link: form.googleDriveLink
       };
-      await axios.post('http://localhost:5001/api/candidates', payload);
+      await axios.post(`${process.env.REACT_APP_API_BASE_URL || "/api"}/candidates`, payload)
       setForm({ name: '', rollNumber: '', googleDriveLink: '' });
       const elapsed = Date.now() - start;
       setTimeout(() => {
