@@ -22,7 +22,7 @@ function CandidateForm() {
       newErrors.rollNumber = "Roll number must be in the format 24CS10081 (2 digits, 2 uppercase letters, 5 digits).";
     }
     if (!driveRegex.test(form.googleDriveLink)) {
-      newErrors.googleDriveLink = "Google Drive link must be a valid write link.";
+      newErrors.googleDriveLink = "Google Drive link must be a valid drive link.";
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -41,13 +41,18 @@ function CandidateForm() {
     setSuccess(false);
     const minDuration = 1000;
     const start = Date.now();
+    
     try {
       const payload = {
         name: form.name,
         roll_number: form.rollNumber,
         google_drive_link: form.googleDriveLink
       };
-      await axios.post(`${process.env.REACT_APP_API_BASE_URL || "/api"}/candidates`, payload)
+      
+      console.log('Submitting candidate:', payload);
+      const response = await axios.post('/api/candidates', payload);
+      console.log('Candidate created successfully:', response.data);
+      
       setForm({ name: '', rollNumber: '', googleDriveLink: '' });
       const elapsed = Date.now() - start;
       setTimeout(() => {
@@ -55,9 +60,19 @@ function CandidateForm() {
         setSuccess(true);
         setTimeout(() => setSuccess(false), 1000);
       }, Math.max(0, minDuration - elapsed));
+      
     } catch (error) {
+      console.error('Submission error:', error);
       setLoading(false);
-      alert('Submission failed!');
+      
+      let errorMessage = 'Submission failed!';
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      alert(`Error: ${errorMessage}`);
     }
   };
 
